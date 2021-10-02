@@ -2570,6 +2570,7 @@ dependencies = [
  "once_cell",
  "reqwest",
  "serde 1.0.130",
+ "serde_json",
  "sqlx",
  "tokio",
  "tracing",

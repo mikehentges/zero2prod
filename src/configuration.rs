@@ -20,6 +20,17 @@ pub struct ApplicationSettings {
     pub host: String,
 }
 
+#[derive(serde::Deserialize)]
+pub struct AwsEnv {
+    //    dbClusterIdentifier: String,
+    password: String,
+    dbname: String,
+    //    engine: String,
+    port: u16,
+    host: String,
+    username: String,
+}
+
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let mut settings = config::Config::default();
     let base_path = std::env::current_dir().expect("Failed to determine the current directory!");
@@ -35,7 +46,20 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     settings.merge(
         config::File::from(configuration_directory.join(environment.as_str())).required(true),
     )?;
-    settings.try_into()
+
+    settings.merge(config::Environment::with_prefix("app").separator("__"))?;
+    let mut result_settings: Settings = settings.try_into().unwrap();
+
+    if Environment::Production == environment {
+        let aws: AwsEnv =
+            serde_json::from_str(&std::env::var("ZERO2PRODSVCCLUSTER_SECRET").unwrap()).unwrap();
+        result_settings.database.username = aws.username;
+        result_settings.database.password = aws.password;
+        result_settings.database.port = aws.port;
+        result_settings.database.host = aws.host;
+        result_settings.database.database_name = aws.dbname;
+    }
+    Ok(result_settings)
 }
 
 impl DatabaseSettings {
@@ -53,6 +77,7 @@ impl DatabaseSettings {
     }
 }
 
+#[derive(PartialEq)]
 pub enum Environment {
     Local,
     Production,
