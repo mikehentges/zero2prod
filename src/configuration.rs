@@ -22,10 +22,8 @@ pub struct ApplicationSettings {
 
 #[derive(serde::Deserialize)]
 pub struct AwsEnv {
-    //    dbClusterIdentifier: String,
     password: String,
     dbname: String,
-    //    engine: String,
     port: u16,
     host: String,
     username: String,
