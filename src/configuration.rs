@@ -1,11 +1,13 @@
+use crate::domain::SubscriberEmail;
 use std::convert::{TryFrom, TryInto};
 
-#[derive(serde::Deserialize)]
+#[derive(Clone, serde::Deserialize)]
 pub struct Settings {
     pub database: DatabaseSettings,
     pub application: ApplicationSettings,
+    pub email_client: EmailClientSettings,
 }
-#[derive(serde::Deserialize)]
+#[derive(Clone, serde::Deserialize)]
 pub struct DatabaseSettings {
     pub username: String,
     pub password: String,
@@ -13,8 +15,7 @@ pub struct DatabaseSettings {
     pub host: String,
     pub database_name: String,
 }
-
-#[derive(serde::Deserialize)]
+#[derive(Clone, serde::Deserialize)]
 pub struct ApplicationSettings {
     pub port: u16,
     pub host: String,
@@ -27,6 +28,13 @@ pub struct AwsEnv {
     port: u16,
     host: String,
     username: String,
+}
+#[derive(Clone, serde::Deserialize)]
+pub struct EmailClientSettings {
+    pub base_url: String,
+    pub sender_email: String,
+    pub authorization_token: String,
+    pub timeout_milliseconds: u64,
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
@@ -102,5 +110,14 @@ impl TryFrom<String> for Environment {
                 other
             )),
         }
+    }
+}
+
+impl EmailClientSettings {
+    pub fn sender(&self) -> Result<SubscriberEmail, String> {
+        SubscriberEmail::parse(self.sender_email.clone())
+    }
+    pub fn timeout(&self) -> std::time::Duration {
+        std::time::Duration::from_millis(self.timeout_milliseconds)
     }
 }
