@@ -3,4 +3,4 @@ application:
 email_client:
   base_url: "https://api.postmarkapp.com"  
   sender_email: "mike@mhentges.com"
-  authorization_token: "d5936f79-86b5-4d79-a0e7-4c775c3adeae"
+  authorization_token: "my_prod_token"
