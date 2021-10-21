@@ -27,6 +27,7 @@ services:
       - "14250:14250"
       - "9411:9411"
 
+
   otlp-collector:
     image: otel/opentelemetry-collector:latest
     command: [ "--config=/etc/otlp-collector-config.yaml", "--log-level=debug" ]
@@ -36,3 +37,4 @@ services:
       - ./otlp-collector-config.yaml:/etc/otlp-collector-config.yaml
     ports:
       - "9000:9000"
+      - "9001:9001"

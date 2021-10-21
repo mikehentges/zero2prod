@@ -1,8 +1,8 @@
-receivers:
-  otlp:
-    protocols:
-      grpc:
-        endpoint: "otlp-collector:9000"
+
+
+extensions:
+  zpages:
+    endpoint: "0.0.0.0:55679"
 
 processors:
   batch:
@@ -14,8 +14,17 @@ exporters:
     insecure: true
 
 service:
+  extensions: [zpages]
   pipelines:
     traces:
       receivers: [ otlp ]
       processors: [ batch ]
       exporters: [ jaeger ]
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:9000"
+      http:
+        endpoint: "0.0.0.0:9001"
