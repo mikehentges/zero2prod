@@ -5,14 +5,9 @@ use tracing_log::LogTracer;
 use tracing_subscriber::fmt::MakeWriter;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
 
-//use tonic::metadata::{MetadataKey, MetadataMap};
-//use url::Url;
-
 use opentelemetry::sdk::trace::IdGenerator;
 use opentelemetry::sdk::{trace, Resource};
-use opentelemetry::trace::TraceError;
 use opentelemetry::KeyValue;
-use opentelemetry_otlp::Protocol;
 use opentelemetry_otlp::WithExportConfig;
 
 pub fn get_subscriber(
@@ -29,14 +24,14 @@ pub fn get_subscriber(
 
     let tracer = opentelemetry_otlp::new_pipeline()
         .tracing()
-        // .with_trace_config(
-        //     trace::config()
-        //         .with_id_generator(IdGenerator::default())
-        //         .with_resource(Resource::new(vec![KeyValue::new(
-        //             "service.name",
-        //             "zero2prod",
-        //         )])),
-        // )
+        .with_trace_config(
+            trace::config()
+                .with_id_generator(IdGenerator::default())
+                .with_resource(Resource::new(vec![KeyValue::new(
+                    "service.name",
+                    "zero2prod",
+                )])),
+        )
         .with_exporter(
             opentelemetry_otlp::new_exporter()
                 .http()
