@@ -19,6 +19,7 @@ FROM debian:bullseye-slim AS runtime
 
 WORKDIR /app
 RUN apt-get update -y \
+    && apt-get install lld clang -y \
     && apt-get install -y --no-install-recommends openssl \
     && apt-get autoremove -y \
     && apt-get clean -y \

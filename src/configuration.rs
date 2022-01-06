@@ -1,4 +1,6 @@
 use crate::domain::SubscriberEmail;
+use secrecy::ExposeSecret;
+use secrecy::Secret;
 use std::convert::{TryFrom, TryInto};
 
 #[derive(Clone, serde::Deserialize)]
@@ -10,7 +12,7 @@ pub struct Settings {
 #[derive(Clone, serde::Deserialize)]
 pub struct DatabaseSettings {
     pub username: String,
-    pub password: String,
+    pub password: Secret<String>,
     pub port: u16,
     pub host: String,
     pub database_name: String,
@@ -21,11 +23,12 @@ pub struct ApplicationSettings {
     pub port: u16,
     pub host: String,
     pub base_url: String,
+    pub hmac_secret: Secret<String>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct AwsEnv {
-    password: String,
+    password: Secret<String>,
     dbname: String,
     port: u16,
     host: String,
@@ -35,7 +38,7 @@ pub struct AwsEnv {
 pub struct EmailClientSettings {
     pub base_url: String,
     pub sender_email: String,
-    pub authorization_token: String,
+    pub authorization_token: Secret<String>,
     pub timeout_milliseconds: u64,
 }
 
@@ -72,17 +75,24 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
 }
 
 impl DatabaseSettings {
-    pub fn connection_string(&self) -> String {
-        format!(
+    pub fn connection_string(&self) -> Secret<String> {
+        Secret::new(format!(
             "postgres://{}:{}@{}:{}/{}",
-            self.username, self.password, self.host, self.port, self.database_name
-        )
+            self.username,
+            self.password.expose_secret(),
+            self.host,
+            self.port,
+            self.database_name
+        ))
     }
-    pub fn connection_string_without_db(&self) -> String {
-        format!(
+    pub fn connection_string_without_db(&self) -> Secret<String> {
+        Secret::new(format!(
             "postgres://{}:{}@{}:{}",
-            self.username, self.password, self.host, self.port,
-        )
+            self.username,
+            self.password.expose_secret(),
+            self.host,
+            self.port,
+        ))
     }
 }
 
