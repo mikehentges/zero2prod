@@ -4,6 +4,7 @@ use crate::email_client::EmailClient;
 use crate::routes::subscriptions::error_chain_fmt;
 use actix_web::http::header::{HeaderMap, HeaderValue};
 use actix_web::http::{header, StatusCode};
+use actix_web::HttpRequest;
 use actix_web::{web, HttpResponse, ResponseError};
 use anyhow::Context;
 use secrecy::Secret;
@@ -22,7 +23,7 @@ pub struct Content {
 
 #[derive(thiserror:: Error)]
 pub enum PublishError {
-    #[error("Authentication failed.")]
+    #[error("Authentication Failed.")]
     AuthError(#[source] anyhow::Error),
     #[error(transparent)]
     UnexpectedError(#[from] anyhow::Error),
@@ -33,6 +34,13 @@ impl std::fmt::Debug for PublishError {
         error_chain_fmt(self, f)
     }
 }
+
+// impl Display for PublishError {
+//     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+//         todo!()
+//     }
+// }
+
 impl ResponseError for PublishError {
     fn error_response(&self) -> HttpResponse {
         match self {
@@ -60,7 +68,7 @@ pub async fn publish_newsletter(
     body: web::Json<BodyData>,
     pool: web::Data<PgPool>,
     email_client: web::Data<EmailClient>,
-    request: web::HttpRequest,
+    request: HttpRequest,
 ) -> Result<HttpResponse, PublishError> {
     let credentials = basic_authentication(request.headers()).map_err(PublishError::AuthError)?;
     tracing::Span::current().record("username", &tracing::field::display(&credentials.username));

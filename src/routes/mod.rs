@@ -1,3 +1,4 @@
+pub(crate) mod admin;
 pub(crate) mod health_check;
 pub(crate) mod home;
 pub(crate) mod login;

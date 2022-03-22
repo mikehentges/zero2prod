@@ -11,11 +11,14 @@ use opentelemetry::sdk::{trace, Resource};
 use opentelemetry::KeyValue;
 use opentelemetry_otlp::WithExportConfig;
 
-pub fn get_subscriber(
+pub fn get_subscriber<Sink>(
     name: String,
     env_filter: String,
-    sink: impl MakeWriter + Send + Sync + 'static,
-) -> impl Subscriber + Send + Sync {
+    sink: Sink,
+) -> impl Subscriber + Send + Sync
+where
+    Sink: for<'a> MakeWriter<'a> + Send + Sync + 'static,
+{
     let _x = dbg!(&env_filter);
     let _y = dbg!(&name);
 
@@ -36,7 +39,7 @@ pub fn get_subscriber(
         .with_exporter(
             opentelemetry_otlp::new_exporter()
                 .http()
-                .with_endpoint("http://localhost:9001/v1/traces"), // .with_protocol(Protocol::HttpBinary),
+                .with_endpoint("http://172.25.76.67:9001/v1/traces"), // .with_protocol(Protocol::HttpBinary),
         )
         .install_batch(opentelemetry::runtime::Tokio)
         .expect("failed to initialize otel tracing pipeline");
