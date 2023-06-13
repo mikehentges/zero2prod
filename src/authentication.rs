@@ -20,7 +20,7 @@ pub enum AuthError {
 pub async fn validate_credentials(
     credentials: Credentials,
     pool: &PgPool,
-) -> Result<uuid::Uuid, AuthError> {
+) -> Result<sqlx::types::Uuid, AuthError> {
     let mut user_id = None;
     let mut expected_password_hash = Secret::new(
         "$argon2id$v=19$m=15000,t=2,p=1$\
@@ -70,7 +70,7 @@ fn verify_password_hash(
 async fn get_stored_credentials(
     username: &str,
     pool: &PgPool,
-) -> Result<Option<(uuid::Uuid, String)>, anyhow::Error> {
+) -> Result<Option<(sqlx::types::Uuid, String)>, anyhow::Error> {
     let row = sqlx::query!(
         r#"
         SELECT user_id, password_hash 

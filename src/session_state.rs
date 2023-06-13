@@ -3,7 +3,6 @@ use actix_session::SessionExt;
 use actix_web::dev::Payload;
 use actix_web::{FromRequest, HttpRequest};
 use std::future::{ready, Ready};
-use uuid::Uuid;
 
 pub struct TypedSession(Session);
 
@@ -14,11 +13,11 @@ impl TypedSession {
         self.0.renew();
     }
 
-    pub fn insert_user_id(&self, user_id: Uuid) -> Result<(), serde_json::Error> {
+    pub fn insert_user_id(&self, user_id: sqlx::types::Uuid) -> Result<(), serde_json::Error> {
         self.0.insert(Self::USER_ID_KEY, user_id)
     }
 
-    pub fn get_user_id(&self) -> Result<Option<Uuid>, serde_json::Error> {
+    pub fn get_user_id(&self) -> Result<Option<sqlx::types::Uuid>, serde_json::Error> {
         self.0.get(Self::USER_ID_KEY)
     }
 }
